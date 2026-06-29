@@ -1,8 +1,12 @@
 import { Router } from 'express'
+import { getScores, getBestWindow } from '../controllers/activityController.js'
 
 const router = Router()
 
-// Placeholder — full implementation in Task 3
-router.get('/', (req, res) => res.json({ ok: true }))
+// GET /api/activities/scores?lat=&lon=
+router.get('/scores', getScores)
+
+// GET /api/activities/best-window?activity=running&days=7&lat=&lon=
+router.get('/best-window', getBestWindow)
 
 export default router

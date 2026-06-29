@@ -1,8 +1,19 @@
 import { Router } from 'express'
+import {
+  getTemperaturePrediction,
+  getRainPrediction,
+  getExplain,
+} from '../controllers/predictionController.js'
 
 const router = Router()
 
-// Placeholder — full implementation in Task 3
-router.get('/', (req, res) => res.json({ ok: true }))
+// GET /api/predict/temperature?lat=&lon=
+router.get('/temperature', getTemperaturePrediction)
+
+// GET /api/predict/rain?lat=&lon=
+router.get('/rain', getRainPrediction)
+
+// GET /api/predict/explain?lat=&lon=
+router.get('/explain', getExplain)
 
 export default router
