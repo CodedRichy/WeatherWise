@@ -128,3 +128,17 @@ export async function logout(req, res, next) {
     next(err)
   }
 }
+
+export async function updateMe(req, res, next) {
+  try {
+    const { units, theme, narrativeStyle } = req.body
+    const update = {}
+    if (units && ['metric', 'imperial'].includes(units)) update['preferences.units'] = units
+    if (theme && ['light', 'dark', 'auto'].includes(theme)) update['preferences.theme'] = theme
+    if (narrativeStyle && ['casual', 'formal'].includes(narrativeStyle)) update['preferences.narrativeStyle'] = narrativeStyle
+    const user = await User.findByIdAndUpdate(req.user.id, { $set: update }, { new: true }).select('-password -refreshToken')
+    res.json(user)
+  } catch (err) {
+    next(err)
+  }
+}

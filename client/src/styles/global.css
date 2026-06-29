@@ -302,6 +302,8 @@ body {
 .form-group input { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-size: 1rem; }
 .form-group input:focus { outline: none; border-color: var(--accent); }
 .form-group input:disabled { opacity: 0.6; cursor: not-allowed; }
+.form-group select { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-size: 1rem; cursor: pointer; outline: none; transition: border-color 0.15s; }
+.form-group select:focus { border-color: var(--accent); }
 .form-error { color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem; }
 .btn-primary { width: 100%; padding: 0.75rem; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
 .btn-primary:hover { background: var(--accent-hover); }

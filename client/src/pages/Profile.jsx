@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { userApi } from '../api/weatherApi.js'
 import SkeletonCard from '../components/ui/SkeletonCard.jsx'
+import apiClient from '../api/apiClient.js'
 
 export default function Profile() {
   const { user, logout, isLoading } = useAuth()
@@ -11,12 +12,24 @@ export default function Profile() {
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
   const [removingId, setRemovingId] = useState(null)
+  const [prefs, setPrefs] = useState({ units: user?.preferences?.units || 'metric', theme: user?.preferences?.theme || 'auto', narrativeStyle: user?.preferences?.narrativeStyle || 'casual' })
+  const [prefsSaving, setPrefsSaving] = useState(false)
 
   useEffect(() => {
     if (!isLoading && !user) {
       navigate('/', { replace: true })
     }
   }, [user, isLoading, navigate])
+
+  useEffect(() => {
+    if (user?.preferences) {
+      setPrefs({
+        units: user.preferences.units || 'metric',
+        theme: user.preferences.theme || 'auto',
+        narrativeStyle: user.preferences.narrativeStyle || 'casual',
+      })
+    }
+  }, [user])
 
   useEffect(() => {
     if (!user) return
@@ -41,6 +54,18 @@ export default function Profile() {
       // ignore
     } finally {
       setRemovingId(null)
+    }
+  }
+
+  async function handleSavePreferences(e) {
+    e.preventDefault()
+    setPrefsSaving(true)
+    try {
+      await apiClient.put('/api/auth/me', prefs)
+    } catch {
+      // silently fail
+    } finally {
+      setPrefsSaving(false)
     }
   }
 
@@ -81,7 +106,7 @@ export default function Profile() {
       {/* Account section */}
       <section className="profile-section">
         <h2>Account</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
           <div>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Name</span>
             <p style={{ fontWeight: 600, marginTop: '0.15rem' }}>{user.name || '—'}</p>
@@ -91,6 +116,35 @@ export default function Profile() {
             <p style={{ marginTop: '0.15rem' }}>{user.email}</p>
           </div>
         </div>
+
+        <h3 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem', color: 'var(--text)' }}>Preferences</h3>
+        <form onSubmit={handleSavePreferences} className="prefs-form">
+          <div className="form-group">
+            <label>Units</label>
+            <select value={prefs.units} onChange={(e) => setPrefs((p) => ({ ...p, units: e.target.value }))}>
+              <option value="metric">Metric (°C, m/s)</option>
+              <option value="imperial">Imperial (°F, mph)</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Theme</label>
+            <select value={prefs.theme} onChange={(e) => setPrefs((p) => ({ ...p, theme: e.target.value }))}>
+              <option value="auto">Auto (follows sunset)</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Narrative Style</label>
+            <select value={prefs.narrativeStyle} onChange={(e) => setPrefs((p) => ({ ...p, narrativeStyle: e.target.value }))}>
+              <option value="casual">Casual</option>
+              <option value="formal">Formal</option>
+            </select>
+          </div>
+          <button type="submit" className="btn-primary" disabled={prefsSaving} style={{ marginTop: '0.5rem' }}>
+            {prefsSaving ? 'Saving...' : 'Save Preferences'}
+          </button>
+        </form>
       </section>
 
       {/* Saved Locations */}
