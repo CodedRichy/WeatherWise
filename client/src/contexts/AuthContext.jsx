@@ -1,13 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
+import { setAccessToken, getAccessToken } from '../api/apiClient.js'
 
 const AuthContext = createContext(null)
 
-// Access token lives in memory only — never in localStorage
-let _accessToken = null
-
-export function getAccessToken() {
-  return _accessToken
-}
+// Token store lives in apiClient.js — imported above so both modules stay in sync
+export { getAccessToken }
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -36,7 +33,7 @@ export function AuthProvider({ children }) {
         return res.json()
       })
       .then((data) => {
-        _accessToken = data.accessToken
+        setAccessToken(data.accessToken)
         if (data.refreshToken) {
           localStorage.setItem('ww-refresh', data.refreshToken)
         }
@@ -45,7 +42,7 @@ export function AuthProvider({ children }) {
       .catch(() => {
         // Refresh failed — clear stored token, stay logged out
         localStorage.removeItem('ww-refresh')
-        _accessToken = null
+        setAccessToken(null)
         setUser(null)
       })
       .finally(() => {
@@ -64,7 +61,7 @@ export function AuthProvider({ children }) {
       throw new Error(err.message || 'Login failed')
     }
     const data = await res.json()
-    _accessToken = data.accessToken
+    setAccessToken(data.accessToken)
     if (data.refreshToken) {
       localStorage.setItem('ww-refresh', data.refreshToken)
     }
@@ -82,7 +79,7 @@ export function AuthProvider({ children }) {
       throw new Error(err.message || 'Registration failed')
     }
     const data = await res.json()
-    _accessToken = data.accessToken
+    setAccessToken(data.accessToken)
     if (data.refreshToken) {
       localStorage.setItem('ww-refresh', data.refreshToken)
     }
@@ -90,7 +87,7 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
-    _accessToken = null
+    setAccessToken(null)
     localStorage.removeItem('ww-refresh')
     setUser(null)
   }
