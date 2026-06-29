@@ -95,6 +95,12 @@ export default function Navbar() {
         >
           Activities
         </NavLink>
+        <NavLink
+          to="/history"
+          className={({ isActive }) => 'navbar__link' + (isActive ? ' active' : '')}
+        >
+          Time Machine
+        </NavLink>
       </div>
 
       <form className="navbar__search" onSubmit={handleSearch} role="search">

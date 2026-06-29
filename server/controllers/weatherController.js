@@ -107,6 +107,39 @@ export async function getNarrative(req, res) {
   }
 }
 
+// GET /api/weather/history?lat=&lon=&date=YYYY-MM-DD
+export async function getHistory(req, res, next) {
+  try {
+    const { lat, lon, date } = req.query // date = YYYY-MM-DD
+    if (!lat || !lon || !date) return res.status(400).json({ error: 'lat, lon, date required' })
+
+    // Fetch from Open-Meteo historical archive
+    const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${date}&end_date=${date}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max&hourly=temperature_2m,precipitation_probability,weather_code&timezone=auto`
+
+    const fetch = (await import('node-fetch')).default
+    const r = await fetch(url)
+    if (!r.ok) throw new Error(`Archive error: ${r.status}`)
+    const json = await r.json()
+
+    const daily = json.daily
+    const hourly = json.hourly
+
+    res.json({
+      date,
+      tempMax: daily.temperature_2m_max?.[0],
+      tempMin: daily.temperature_2m_min?.[0],
+      precipitation: daily.precipitation_sum?.[0],
+      weatherCode: daily.weather_code?.[0],
+      windMax: daily.wind_speed_10m_max?.[0],
+      hourly: hourly?.time?.slice(0, 24).map((t, i) => ({
+        time: t,
+        temp: hourly.temperature_2m?.[i],
+        weatherCode: hourly.weather_code?.[i],
+      })) || [],
+    })
+  } catch (err) { next(err) }
+}
+
 // GET /api/weather/geocode?q=London
 export async function geocode(req, res) {
   try {

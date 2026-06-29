@@ -6,6 +6,7 @@ import {
   getCompare,
   getNarrative,
   geocode,
+  getHistory,
 } from '../controllers/weatherController.js'
 
 const router = Router()
@@ -17,5 +18,6 @@ router.get('/hourly', getHourly)
 router.get('/compare', getCompare)
 router.get('/narrative', getNarrative)
 router.get('/geocode', geocode)
+router.get('/history', getHistory)
 
 export default router

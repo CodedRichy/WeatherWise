@@ -8,6 +8,7 @@ import AuthModal from './components/ui/AuthModal.jsx'
 const Home = lazy(() => import('./pages/Home.jsx'))
 const Compare = lazy(() => import('./pages/Compare.jsx'))
 const Activities = lazy(() => import('./pages/Activities.jsx'))
+const History = lazy(() => import('./pages/History.jsx'))
 const Profile = lazy(() => import('./pages/Profile.jsx'))
 const NotFound = lazy(() => import('./pages/NotFound.jsx'))
 
@@ -36,6 +37,7 @@ function AppRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/activities" element={<Activities />} />
+          <Route path="/history" element={<History />} />
           <Route
             path="/profile"
             element={
