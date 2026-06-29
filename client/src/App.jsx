@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import Navbar from './components/ui/Navbar.jsx'
+import AuthModal from './components/ui/AuthModal.jsx'
 
 const Home = lazy(() => import('./pages/Home.jsx'))
 const Compare = lazy(() => import('./pages/Compare.jsx'))
@@ -28,6 +29,7 @@ function AppRoutes() {
   return (
     <>
       <Navbar />
+      <AuthModal />
       <Suspense fallback={<Spinner />}>
         <Routes>
           <Route path="/" element={<Home />} />
