@@ -1,14 +1,4 @@
-const CONDITION_EMOJI = {
-  'Clear': '☀️',
-  'Partly Cloudy': '⛅',
-  'Foggy': '🌫️',
-  'Drizzle': '🌦️',
-  'Rain': '🌧️',
-  'Snow': '❄️',
-  'Showers': '🌦️',
-  'Thunderstorm': '⛈️',
-  'Unknown': '🌡️',
-}
+import { CONDITION_EMOJI } from './constants.js'
 
 function tempGradient(temp) {
   if (temp < 5)  return 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
