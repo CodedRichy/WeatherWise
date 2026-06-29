@@ -12,6 +12,9 @@ import SkeletonCard from '../components/ui/SkeletonCard.jsx'
 import ErrorCard from '../components/ui/ErrorCard.jsx'
 import MLForecast from '../components/prediction/MLForecast.jsx'
 import FeatureImportance from '../components/prediction/FeatureImportance.jsx'
+import GoOutsideOracle from '../components/smart/GoOutsideOracle.jsx'
+import UVIndex from '../components/smart/UVIndex.jsx'
+import SunsetBeauty from '../components/smart/SunsetBeauty.jsx'
 
 export default function Home() {
   const { lat, lon } = useGeolocation()
@@ -113,6 +116,9 @@ export default function Home() {
           <>
             <CurrentWeather current={current} />
             <NarrativeSummary narrative={narrative} loading={loading} />
+            <GoOutsideOracle lat={coords.lat} lon={coords.lon} />
+            <UVIndex lat={coords.lat} lon={coords.lon} />
+            <SunsetBeauty lat={coords.lat} lon={coords.lon} />
             <HourlyTimeline hourly={hourly} />
             <WeeklyForecast forecast={forecast} />
 

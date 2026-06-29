@@ -9,6 +9,7 @@ import weatherRoutes from './routes/weather.js'
 import predictionRoutes from './routes/predictions.js'
 import activityRoutes from './routes/activities.js'
 import userRoutes from './routes/user.js'
+import smartRoutes from './routes/smart.js'
 import { startCacheCleanup } from './jobs/cacheCleanup.js'
 
 dotenv.config()
@@ -27,6 +28,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/weather', weatherRoutes)
 app.use('/api/predict', predictionRoutes)
 app.use('/api/activities', activityRoutes)
+app.use('/api/smart', smartRoutes)
 app.use('/api', userRoutes)
 
 app.use(errorHandler)

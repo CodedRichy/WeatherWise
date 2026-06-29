@@ -30,6 +30,14 @@ export const weatherApi = {
 
   getExplain:    (lat, lon) =>
     client.get('/api/predict/explain', { params: { lat, lon } }),
+
+  getHistory:    (lat, lon, date) =>
+    client.get('/api/weather/history', { params: { lat, lon, date } }),
+
+  getOracle: (lat, lon) => client.get('/api/smart/oracle', { params: { lat, lon } }),
+  getUV:     (lat, lon) => client.get('/api/smart/uv', { params: { lat, lon } }),
+  getSunset: (lat, lon) => client.get('/api/smart/sunset', { params: { lat, lon } }),
+  getBio:    (lat, lon) => client.get('/api/smart/bio', { params: { lat, lon } }),
 }
 
 export const authApi = {
