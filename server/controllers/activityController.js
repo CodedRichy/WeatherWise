@@ -94,7 +94,6 @@ export async function getBestWindow(req, res) {
       return res.status(400).json({ error: `activity must be one of: ${ACTIVITIES.join(', ')}` })
     }
 
-    // Fetch up to 168 hours (7 days) — weatherService returns 48 hrs from API; slice is capped there
     const hourly = await fetchHourly(Number(lat), Number(lon), 168)
 
     const scored = hourly.map(h => {
