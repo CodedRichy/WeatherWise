@@ -1,7 +1,5 @@
 import fetch from 'node-fetch'
-
-// In-memory cache
-const cache = new Map()
+import { weatherCache as cache } from '../middleware/cache.js'
 
 // Cache helpers
 function cacheGet(key) {
@@ -18,9 +16,6 @@ function cacheSet(key, data, ttlMs) {
 function cacheKey(lat, lon, type) {
   return `${Number(lat).toFixed(2)},${Number(lon).toFixed(2)}:${type}`
 }
-
-// Export cache for cleanup job
-export { cache }
 
 // WMO weather code → human-readable condition
 export function weatherCodeToCondition(code) {
