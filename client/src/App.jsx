@@ -9,6 +9,7 @@ const Home = lazy(() => import('./pages/Home.jsx'))
 const Compare = lazy(() => import('./pages/Compare.jsx'))
 const Activities = lazy(() => import('./pages/Activities.jsx'))
 const Profile = lazy(() => import('./pages/Profile.jsx'))
+const NotFound = lazy(() => import('./pages/NotFound.jsx'))
 
 function Spinner() {
   return (
@@ -43,8 +44,8 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           />
-          {/* Catch-all: redirect unknown paths to home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Catch-all: 404 page */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </>

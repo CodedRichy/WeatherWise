@@ -23,6 +23,7 @@ export default function Navbar() {
   const { user, logout } = useAuth()
   const { theme, setTheme } = useTheme()
 
+  const [menuOpen, setMenuOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [searchError, setSearchError] = useState(null)
   const inputRef = useRef(null)
@@ -65,7 +66,16 @@ export default function Navbar() {
         WeatherWise
       </NavLink>
 
-      <div className="navbar__links">
+      <button
+        className="hamburger"
+        aria-label="Toggle navigation menu"
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen((o) => !o)}
+      >
+        {menuOpen ? '✕' : '☰'}
+      </button>
+
+      <div className={`navbar__links nav-links${menuOpen ? ' open' : ''}`}>
         <NavLink
           to="/"
           end

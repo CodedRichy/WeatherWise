@@ -320,3 +320,34 @@ body {
 .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1.2rem; padding: 0.25rem; border-radius: 4px; transition: color 0.15s; }
 .btn-icon:hover { color: var(--danger); }
 .btn-icon:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Navbar mobile */
+.hamburger { display: none; background: none; border: none; cursor: pointer; color: var(--text); font-size: 1.5rem; padding: 0.25rem; }
+.nav-links { display: flex; align-items: center; gap: 0.25rem; margin-left: 0.5rem; }
+@media (max-width: 768px) {
+  .hamburger { display: block; }
+  .nav-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg); border-bottom: 1px solid var(--border); padding: 1rem; z-index: 100; }
+  .nav-links.open { display: flex; }
+}
+
+/* Skeleton refinements */
+.skeleton-row { display: flex; gap: 0.5rem; }
+
+/* 404 */
+.not-found { text-align: center; padding: 4rem 1rem; }
+.not-found h1 { font-size: 5rem; color: var(--text-muted); }
+.not-found a { color: var(--accent); text-decoration: none; }
+
+/* Retry button */
+.btn-retry { margin-left: 1rem; padding: 0.25rem 0.75rem; border: 1px solid var(--danger); background: none; color: var(--danger); border-radius: 4px; cursor: pointer; font-size: 0.875rem; }
+.btn-retry:hover { background: var(--danger); color: white; }
+
+/* Bottom sheet for mobile weather panel */
+@media (max-width: 768px) {
+  .weather-panel { position: relative; }
+}
+
+/* Weekly forecast compact on mobile */
+@media (max-width: 768px) {
+  .weekly-row { font-size: 0.875rem; gap: 0.5rem; padding: 0.5rem 0; }
+}

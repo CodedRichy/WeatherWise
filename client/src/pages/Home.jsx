@@ -9,6 +9,7 @@ import HourlyTimeline from '../components/weather/HourlyTimeline.jsx'
 import WeeklyForecast from '../components/weather/WeeklyForecast.jsx'
 import NarrativeSummary from '../components/weather/NarrativeSummary.jsx'
 import SkeletonCard from '../components/ui/SkeletonCard.jsx'
+import ErrorCard from '../components/ui/ErrorCard.jsx'
 import MLForecast from '../components/prediction/MLForecast.jsx'
 import FeatureImportance from '../components/prediction/FeatureImportance.jsx'
 
@@ -80,10 +81,7 @@ export default function Home() {
             <SkeletonCard height="200px" />
           </>
         ) : error ? (
-          <div className="error-card">
-            {error}{' '}
-            <button onClick={() => window.location.reload()}>Retry</button>
-          </div>
+          <ErrorCard message={error} onRetry={() => window.location.reload()} />
         ) : current ? (
           <>
             <CurrentWeather current={current} />
