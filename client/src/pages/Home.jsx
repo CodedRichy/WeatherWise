@@ -29,6 +29,13 @@ export default function Home() {
 
   const [showExplain, setShowExplain] = useState(false)
 
+  // Clear stale prediction when location changes
+  useEffect(() => {
+    setPrediction(null)
+    setShowPrediction(false)
+    setShowExplain(false)
+  }, [coords.lat, coords.lon])
+
   async function loadPrediction() {
     if (prediction || predLoading) return
     setPredLoading(true)
@@ -85,7 +92,7 @@ export default function Home() {
         ) : current ? (
           <>
             <CurrentWeather current={current} />
-            <NarrativeSummary narrative={narrative} />
+            <NarrativeSummary narrative={narrative} loading={loading} />
             <HourlyTimeline hourly={hourly} />
             <WeeklyForecast forecast={forecast} />
 

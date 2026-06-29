@@ -29,7 +29,7 @@ export default function MLForecast({ forecast }) {
   if (!forecast?.length) return null
 
   const data = forecast.map(d => ({
-    name: d.day === 0 ? 'Today' : d.day === 1 ? 'Tomorrow' : 'Day 3',
+    name: d.day === 0 ? 'Today' : d.day === 1 ? 'Tomorrow' : `Day ${d.day + 1}`,
     low:  d.confidenceLow,
     mid:  d.tempMid,
     high: d.confidenceHigh,

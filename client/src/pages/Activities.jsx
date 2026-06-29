@@ -12,7 +12,8 @@ export default function Activities() {
 
   useEffect(() => {
     const stored = localStorage.getItem('ww-location')
-    const loc = stored ? JSON.parse(stored) : { lat: 51.5074, lon: -0.1278 }
+    let loc = { lat: 51.5074, lon: -0.1278 }
+    if (stored) { try { loc = JSON.parse(stored) } catch {} }
     setCoords(loc)
     weatherApi.getScores(loc.lat, loc.lon)
       .then(res => setScores(res.data))

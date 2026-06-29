@@ -12,6 +12,11 @@ import userRoutes from './routes/user.js'
 import { startCacheCleanup } from './jobs/cacheCleanup.js'
 
 dotenv.config()
+
+if ((process.env.JWT_SECRET || '').length < 32 || (process.env.JWT_REFRESH_SECRET || '').length < 32) {
+  console.warn('WARNING: JWT_SECRET and JWT_REFRESH_SECRET must be at least 32 characters. Tokens will be weak.')
+}
+
 const app = express()
 
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }))

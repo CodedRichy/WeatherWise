@@ -11,7 +11,8 @@ export default function HourlyTimeline({ hourly }) {
 
   // Find index of current hour
   const nowIndex = time.findIndex((t) => new Date(t).getTime() >= now)
-  const startIdx = nowIndex > 0 ? nowIndex : 0
+  const validNow = nowIndex >= 0
+  const startIdx = validNow ? nowIndex : Math.max(0, time.length - 24)
 
   // Show next 24 hours
   const items = time.slice(startIdx, startIdx + 24).map((t, i) => {
@@ -24,7 +25,7 @@ export default function HourlyTimeline({ hourly }) {
     const code = weather_code?.[idx] ?? 0
     const condition = wmoToCondition(code)
     const emoji = CONDITION_EMOJI[condition] ?? '🌡️'
-    const isActive = i === 0
+    const isActive = validNow && i === 0
 
     return { label, temp, emoji, isActive }
   })

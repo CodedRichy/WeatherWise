@@ -14,6 +14,7 @@ export default function Profile() {
   const [removingId, setRemovingId] = useState(null)
   const [prefs, setPrefs] = useState({ units: user?.preferences?.units || 'metric', theme: user?.preferences?.theme || 'auto', narrativeStyle: user?.preferences?.narrativeStyle || 'casual' })
   const [prefsSaving, setPrefsSaving] = useState(false)
+  const [prefsSaveError, setPrefsSaveError] = useState(null)
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -60,10 +61,11 @@ export default function Profile() {
   async function handleSavePreferences(e) {
     e.preventDefault()
     setPrefsSaving(true)
+    setPrefsSaveError(null)
     try {
       await apiClient.put('/api/auth/me', prefs)
-    } catch {
-      // silently fail
+    } catch (err) {
+      setPrefsSaveError(err.response?.data?.error || 'Failed to save preferences')
     } finally {
       setPrefsSaving(false)
     }
@@ -144,6 +146,9 @@ export default function Profile() {
           <button type="submit" className="btn-primary" disabled={prefsSaving} style={{ marginTop: '0.5rem' }}>
             {prefsSaving ? 'Saving...' : 'Save Preferences'}
           </button>
+          {prefsSaveError && (
+            <p style={{ color: 'var(--error, #ef4444)', fontSize: '0.85rem', marginTop: '0.4rem' }}>{prefsSaveError}</p>
+          )}
         </form>
       </section>
 

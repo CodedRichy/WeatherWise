@@ -15,7 +15,7 @@ export default function AuthModal() {
   // Listen for the custom event dispatched by Navbar
   useEffect(() => {
     function handleOpen(e) {
-      setMode(e.detail?.mode === 'register' ? 'register' : 'login')
+      setMode(e.detail === 'register' || e.detail?.mode === 'register' ? 'register' : 'login')
       setFields(INITIAL_FIELDS)
       setFieldErrors({})
       setGeneralError('')

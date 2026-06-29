@@ -6,6 +6,18 @@ export function useGeolocation() {
   const [state, setState] = useState({ lat: null, lon: null, loading: true, error: null })
 
   useEffect(() => {
+    function handleStorage(e) {
+      if (e.key !== 'ww-location' || !e.newValue) return
+      try {
+        const { lat, lon } = JSON.parse(e.newValue)
+        if (lat != null && lon != null) setState({ lat, lon, loading: false, error: null })
+      } catch {}
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
+
+  useEffect(() => {
     // Check localStorage first (set by Navbar search)
     const stored = localStorage.getItem('ww-location')
     if (stored) {

@@ -16,7 +16,7 @@ export default function Compare() {
     setError(null)
     try {
       const geo = await weatherApi.geocode(query)
-      const results = geo.data?.results
+      const results = geo.data
       if (!results?.length) throw new Error('City not found')
       const { name, latitude: lat, longitude: lon, country } = results[0]
       const cityName = `${name}, ${country}`

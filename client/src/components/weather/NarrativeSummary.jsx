@@ -2,9 +2,9 @@ import SkeletonCard from '../ui/SkeletonCard.jsx'
 
 // Props: { narrative }
 // narrative = { narrative: string, tone: string, generatedAt: string } | null
-export default function NarrativeSummary({ narrative }) {
+export default function NarrativeSummary({ narrative, loading }) {
   if (!narrative) {
-    return <SkeletonCard height="80px" />
+    return loading ? <SkeletonCard height="80px" /> : null
   }
 
   let generatedTime = ''
