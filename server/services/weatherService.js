@@ -90,13 +90,14 @@ export async function fetchForecast(lat, lon, days = 7) {
   return data
 }
 
-// Fetch 48-hour hourly forecast
+// Fetch hourly forecast
 export async function fetchHourly(lat, lon, hours = 48) {
   const key = cacheKey(lat, lon, 'hourly')
   const cached = cacheGet(key)
   if (cached) return cached
 
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,weather_code,wind_speed_10m,cloud_cover&timezone=auto&forecast_days=2`
+  const forecastDays = Math.ceil((hours || 48) / 24)
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,weather_code,wind_speed_10m,cloud_cover&timezone=auto&forecast_days=${forecastDays}`
 
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Open-Meteo hourly error: ${res.status}`)

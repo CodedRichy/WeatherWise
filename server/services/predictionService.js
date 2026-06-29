@@ -29,10 +29,10 @@ export async function predict(lat, lon) {
 
   const lastTemp = temps[temps.length - 1]
 
-  // Weighted blend of trends, scaled by 5 to produce realistic temperature deltas
+  // Weighted blend of trends
   const nextDayTempMid =
     lastTemp +
-    (pressureTrend * 0.35 + humidityTrend * 0.25 + tempTrend * 0.25 + cloudTrend * 0.15) * 5
+    (pressureTrend * 0.35 + humidityTrend * 0.25 + tempTrend * 0.25 + cloudTrend * 0.15)
 
   const variance = stdev(temps)
   const confidence = variance * 0.8
