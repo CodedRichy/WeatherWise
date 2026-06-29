@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useGeolocation } from '../hooks/useGeolocation.js'
 import { useWeather } from '../hooks/useWeather.js'
 import { weatherApi } from '../api/weatherApi.js'
@@ -28,6 +28,10 @@ export default function Home() {
   const [predLoading, setPredLoading]     = useState(false)
 
   const [showExplain, setShowExplain] = useState(false)
+
+  // Click-to-weather popup state
+  const [clickWeather, setClickWeather] = useState(null)
+  const [clickLoading, setClickLoading] = useState(false)
 
   // Clear stale prediction when location changes
   useEffect(() => {
@@ -73,9 +77,25 @@ export default function Home() {
         <WeatherMap
           lat={coords.lat}
           lon={coords.lon}
-          onLocationSelect={(lat, lon) => setSelectedCoords({ lat, lon })}
+          onLocationSelect={async (lat, lon) => {
+            setSelectedCoords({ lat, lon })
+            setClickWeather(null)
+            setClickLoading(true)
+            try {
+              const res = await weatherApi.getCurrent(lat, lon)
+              setClickWeather({ ...res.data, lat, lon })
+            } catch {
+              // silent fail
+            } finally {
+              setClickLoading(false)
+            }
+          }}
           activeOverlay={activeOverlay}
           OWM_API_KEY={import.meta.env.VITE_OWM_API_KEY}
+          windSpeed={current?.windSpeed}
+          windDirection={current?.windDirection}
+          clickWeather={clickWeather}
+          clickLoading={clickLoading}
         />
         <OverlayControls activeOverlay={activeOverlay} onOverlayChange={setActiveOverlay} />
       </div>
