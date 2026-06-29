@@ -1,22 +1,34 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import { connectDB } from './config/db.js'
+import { errorHandler } from './middleware/errorHandler.js'
+import { rateLimiter } from './middleware/rateLimiter.js'
+import authRoutes from './routes/auth.js'
+import weatherRoutes from './routes/weather.js'
+import predictionRoutes from './routes/predictions.js'
+import activityRoutes from './routes/activities.js'
+import userRoutes from './routes/user.js'
+import { startCacheCleanup } from './jobs/cacheCleanup.js'
 
 dotenv.config()
-
 const app = express()
+
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }))
+app.use(express.json())
+app.use(rateLimiter)
+
+app.use('/api/auth', authRoutes)
+app.use('/api/weather', weatherRoutes)
+app.use('/api/predict', predictionRoutes)
+app.use('/api/activities', activityRoutes)
+app.use('/api', userRoutes)
+
+app.use(errorHandler)
+
 const PORT = process.env.PORT || 5000
 
-// Middleware
-app.use(cors())
-app.use(express.json())
-
-// Routes
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'WeatherWise server is running' })
-})
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+connectDB().then(() => {
+  app.listen(PORT, () => console.log(`Server running on ${PORT}`))
+  startCacheCleanup()
 })
