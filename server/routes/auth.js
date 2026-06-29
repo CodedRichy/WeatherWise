@@ -1,8 +1,13 @@
 import { Router } from 'express'
+import { register, login, refresh, getMe, logout } from '../controllers/authController.js'
+import { requireAuth } from '../middleware/auth.js'
 
 const router = Router()
 
-// Placeholder — full implementation in Task 3
-router.get('/', (req, res) => res.json({ ok: true }))
+router.post('/register', register)
+router.post('/login', login)
+router.post('/refresh', refresh)
+router.get('/me', requireAuth, getMe)
+router.post('/logout', requireAuth, logout)
 
 export default router
