@@ -110,8 +110,12 @@ export default function Home() {
               <button className="section-toggle" onClick={toggleExplain}>
                 {showExplain ? '▼' : '▶'} Why this prediction
               </button>
-              {showExplain && prediction && (
-                <FeatureImportance featureImportance={prediction.featureImportance} />
+              {showExplain && (
+                predLoading
+                  ? <SkeletonCard height="160px" />
+                  : prediction
+                    ? <FeatureImportance featureImportance={prediction.featureImportance} />
+                    : null
               )}
             </div>
           </>
