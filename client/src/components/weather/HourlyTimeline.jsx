@@ -1,0 +1,72 @@
+const CONDITION_EMOJI = {
+  'Clear': '☀️',
+  'Partly Cloudy': '⛅',
+  'Foggy': '🌫️',
+  'Drizzle': '🌦️',
+  'Rain': '🌧️',
+  'Snow': '❄️',
+  'Showers': '🌦️',
+  'Thunderstorm': '⛈️',
+  'Unknown': '🌡️',
+}
+
+// Maps Open-Meteo WMO weather codes to condition strings
+function wmoToCondition(code) {
+  if (code === 0) return 'Clear'
+  if (code <= 3) return 'Partly Cloudy'
+  if (code === 45 || code === 48) return 'Foggy'
+  if (code >= 51 && code <= 57) return 'Drizzle'
+  if (code >= 61 && code <= 67) return 'Rain'
+  if (code >= 71 && code <= 77) return 'Snow'
+  if (code >= 80 && code <= 82) return 'Showers'
+  if (code >= 95 && code <= 99) return 'Thunderstorm'
+  return 'Unknown'
+}
+
+// Props: { hourly }
+// hourly = { hourly: { time[], temperature_2m[], relative_humidity_2m[],
+//            precipitation_probability[], weather_code[], wind_speed_10m[], cloud_cover[] } }
+export default function HourlyTimeline({ hourly }) {
+  if (!hourly?.hourly?.time) return null
+
+  const { time, temperature_2m, weather_code } = hourly.hourly
+  const now = Date.now()
+
+  // Find index of current hour
+  const nowIndex = time.findIndex((t) => new Date(t).getTime() >= now)
+  const startIdx = nowIndex > 0 ? nowIndex : 0
+
+  // Show next 24 hours
+  const items = time.slice(startIdx, startIdx + 24).map((t, i) => {
+    const idx = startIdx + i
+    const date = new Date(t)
+    const hh = String(date.getHours()).padStart(2, '0')
+    const mm = String(date.getMinutes()).padStart(2, '0')
+    const label = `${hh}:${mm}`
+    const temp = temperature_2m?.[idx] != null ? Math.round(temperature_2m[idx]) : '—'
+    const code = weather_code?.[idx] ?? 0
+    const condition = wmoToCondition(code)
+    const emoji = CONDITION_EMOJI[condition] ?? '🌡️'
+    const isActive = i === 0
+
+    return { label, temp, emoji, isActive }
+  })
+
+  return (
+    <div className="hourly-timeline">
+      {items.map(({ label, temp, emoji, isActive }, i) => (
+        <div
+          key={i}
+          className="hourly-item"
+          style={isActive ? { background: 'var(--accent)', color: '#fff' } : {}}
+        >
+          <div style={{ fontSize: '0.75rem', color: isActive ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)' }}>
+            {label}
+          </div>
+          <div style={{ fontSize: '1.25rem', margin: '0.25rem 0' }}>{emoji}</div>
+          <div style={{ fontWeight: 600 }}>{temp}°</div>
+        </div>
+      ))}
+    </div>
+  )
+}
