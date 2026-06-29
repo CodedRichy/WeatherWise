@@ -15,6 +15,7 @@ import FeatureImportance from '../components/prediction/FeatureImportance.jsx'
 import GoOutsideOracle from '../components/smart/GoOutsideOracle.jsx'
 import UVIndex from '../components/smart/UVIndex.jsx'
 import SunsetBeauty from '../components/smart/SunsetBeauty.jsx'
+import BioWeather from '../components/smart/BioWeather.jsx'
 
 export default function Home() {
   const { lat, lon } = useGeolocation()
@@ -119,6 +120,7 @@ export default function Home() {
             <GoOutsideOracle lat={coords.lat} lon={coords.lon} />
             <UVIndex lat={coords.lat} lon={coords.lon} />
             <SunsetBeauty lat={coords.lat} lon={coords.lon} />
+            <BioWeather lat={coords.lat} lon={coords.lon} />
             <HourlyTimeline hourly={hourly} />
             <WeeklyForecast forecast={forecast} />
 
