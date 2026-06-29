@@ -143,7 +143,7 @@ export default function AuthModal() {
               value={fields.email}
               onChange={handleChange}
               placeholder="you@example.com"
-              autoComplete={mode === 'login' ? 'email' : 'email'}
+              autoComplete="email"
               disabled={submitting}
             />
             {fieldErrors.email && <p className="form-error">{fieldErrors.email}</p>}
