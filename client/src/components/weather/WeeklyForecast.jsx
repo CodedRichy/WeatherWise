@@ -1,13 +1,11 @@
 import { useState } from 'react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { CONDITION_EMOJI, wmoToCondition } from './constants.js'
+import { CONDITION_EMOJI } from './constants.js'
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-// Generate a simple bell-curve temperature profile between min and max over 24 points
 function buildDummyHourlyData(min, max) {
   return Array.from({ length: 24 }, (_, h) => {
-    // Peak around 14:00, trough around 04:00
     const factor = Math.sin(((h - 4) / 24) * Math.PI)
     const temp = min + (max - min) * Math.max(0, factor)
     return { hour: `${String(h).padStart(2, '0')}:00`, temp: Math.round(temp * 10) / 10 }
@@ -17,101 +15,69 @@ function buildDummyHourlyData(min, max) {
 function formatTime(isoString) {
   if (!isoString) return '—'
   const d = new Date(isoString)
-  const hh = String(d.getHours()).padStart(2, '0')
-  const mm = String(d.getMinutes()).padStart(2, '0')
-  return `${hh}:${mm}`
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
 }
 
-// Props: { forecast }
-// forecast = { daily: { time[], temperature_2m_max[], temperature_2m_min[],
-//              precipitation_sum[], weather_code[], wind_speed_10m_max[], sunrise[], sunset[] } }
 export default function WeeklyForecast({ forecast }) {
   const [expandedIdx, setExpandedIdx] = useState(null)
 
-  if (!forecast?.daily?.time) return null
+  if (!Array.isArray(forecast) || !forecast.length) return null
 
-  const {
-    time,
-    temperature_2m_max,
-    temperature_2m_min,
-    weather_code,
-    sunrise,
-    sunset,
-  } = forecast.daily
-
-  const days = time.map((t, i) => {
-    const date = new Date(t)
-    const dayName = DAY_NAMES[date.getDay()]
-    const tMax = temperature_2m_max?.[i] ?? 0
-    const tMin = temperature_2m_min?.[i] ?? 0
-    const code = weather_code?.[i] ?? 0
-    const condition = wmoToCondition(code)
-    const emoji = CONDITION_EMOJI[condition] ?? '🌡️'
-    const sunriseStr = sunrise?.[i] ? formatTime(sunrise[i]) : '—'
-    const sunsetStr = sunset?.[i] ? formatTime(sunset[i]) : '—'
-    const chartData = buildDummyHourlyData(tMin, tMax)
-
-    return { dayName, tMax, tMin, emoji, condition, sunriseStr, sunsetStr, chartData }
+  const days = forecast.map(d => {
+    const date = new Date(d.date)
+    return {
+      dayName: DAY_NAMES[date.getDay()],
+      tMax: d.tempMax ?? 0,
+      tMin: d.tempMin ?? 0,
+      emoji: CONDITION_EMOJI[d.condition] ?? '🌡️',
+      condition: d.condition ?? '',
+      sunriseStr: formatTime(d.sunrise),
+      sunsetStr: formatTime(d.sunset),
+      chartData: buildDummyHourlyData(d.tempMin ?? 0, d.tempMax ?? 0),
+    }
   })
 
-  function toggle(i) {
-    setExpandedIdx(expandedIdx === i ? null : i)
-  }
-
   return (
-    <div style={{ background: 'var(--surface)', borderRadius: '8px', overflow: 'hidden' }}>
+    <div style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden' }}>
       {days.map((day, i) => (
         <div key={i}>
           <div
             className="weekly-row"
-            onClick={() => toggle(i)}
+            onClick={() => setExpandedIdx(expandedIdx === i ? null : i)}
             role="button"
             aria-expanded={expandedIdx === i}
           >
-            <span style={{ width: '2.5rem', fontWeight: 600, color: 'var(--text)' }}>
-              {day.dayName}
-            </span>
-            <span style={{ fontSize: '1.25rem' }}>{day.emoji}</span>
-            <span style={{ flex: 1, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              {day.condition}
-            </span>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text)' }}>
+            <span style={{ width: '2.5rem', fontWeight: 600, color: 'var(--text)' }}>{day.dayName}</span>
+            <span style={{ fontSize: '1.2rem' }}>{day.emoji}</span>
+            <span style={{ flex: 1, fontSize: '0.82rem', color: 'var(--text-muted)' }}>{day.condition}</span>
+            <span style={{ fontSize: '0.875rem' }}>
               <span style={{ color: '#ef4444', fontWeight: 600 }}>{Math.round(day.tMax)}°</span>
               {' / '}
-              <span style={{ color: '#3b82f6' }}>{Math.round(day.tMin)}°</span>
+              <span style={{ color: '#60a5fa' }}>{Math.round(day.tMin)}°</span>
             </span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginLeft: '0.4rem' }}>
               {expandedIdx === i ? '▲' : '▼'}
             </span>
           </div>
 
           {expandedIdx === i && (
-            <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border)', background: 'var(--bg)' }}>
-              <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-                <span>🌅 Sunrise {day.sunriseStr}</span>
-                <span>🌇 Sunset {day.sunsetStr}</span>
+            <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid var(--border)', background: 'rgba(255,255,255,0.03)' }}>
+              <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+                <span>🌅 {day.sunriseStr}</span>
+                <span>🌇 {day.sunsetStr}</span>
               </div>
-              <ResponsiveContainer width="100%" height={80}>
+              <ResponsiveContainer width="100%" height={70}>
                 <AreaChart data={day.chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
                   <defs>
-                    <linearGradient id={`tempGrad-${i}`} x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id={`tg-${i}`} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
                       <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="hour" tick={{ fontSize: 9 }} interval={5} />
                   <YAxis tick={{ fontSize: 9 }} />
-                  <Tooltip
-                    contentStyle={{ fontSize: '0.75rem', padding: '2px 6px' }}
-                    formatter={(v) => [`${v}°C`, 'Temp']}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="temp"
-                    stroke="#f59e0b"
-                    strokeWidth={2}
-                    fill={`url(#tempGrad-${i})`}
-                  />
+                  <Tooltip contentStyle={{ fontSize: '0.72rem', padding: '2px 6px' }} formatter={v => [`${v}°C`, 'Temp']} />
+                  <Area type="monotone" dataKey="temp" stroke="#f59e0b" strokeWidth={2} fill={`url(#tg-${i})`} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

@@ -1,50 +1,28 @@
-import { CONDITION_EMOJI, wmoToCondition } from './constants.js'
+import { CONDITION_EMOJI } from './constants.js'
 
-// Props: { hourly }
-// hourly = { hourly: { time[], temperature_2m[], relative_humidity_2m[],
-//            precipitation_probability[], weather_code[], wind_speed_10m[], cloud_cover[] } }
 export default function HourlyTimeline({ hourly }) {
-  if (!hourly?.hourly?.time) return null
+  if (!Array.isArray(hourly) || !hourly.length) return null
 
-  const { time, temperature_2m, weather_code } = hourly.hourly
   const now = Date.now()
-
-  // Find index of current hour
-  const nowIndex = time.findIndex((t) => new Date(t).getTime() >= now)
-  const validNow = nowIndex >= 0
-  const startIdx = validNow ? nowIndex : Math.max(0, time.length - 24)
-
-  // Show next 24 hours
-  const items = time.slice(startIdx, startIdx + 24).map((t, i) => {
-    const idx = startIdx + i
-    const date = new Date(t)
-    const hh = String(date.getHours()).padStart(2, '0')
-    const mm = String(date.getMinutes()).padStart(2, '0')
-    const label = `${hh}:${mm}`
-    const temp = temperature_2m?.[idx] != null ? Math.round(temperature_2m[idx]) : '—'
-    const code = weather_code?.[idx] ?? 0
-    const condition = wmoToCondition(code)
-    const emoji = CONDITION_EMOJI[condition] ?? '🌡️'
-    const isActive = validNow && i === 0
-
-    return { label, temp, emoji, isActive }
-  })
+  const nowIndex = hourly.findIndex(h => new Date(h.time).getTime() >= now)
+  const startIdx = nowIndex >= 0 ? nowIndex : 0
+  const items = hourly.slice(startIdx, startIdx + 24)
 
   return (
-    <div className="hourly-timeline">
-      {items.map(({ label, temp, emoji, isActive }, i) => (
-        <div
-          key={i}
-          className="hourly-item"
-          style={isActive ? { background: 'var(--accent)', color: '#fff' } : {}}
-        >
-          <div style={{ fontSize: '0.75rem', color: isActive ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)' }}>
-            {label}
+    <div className="hourly-timeline" style={{ padding: '0.5rem 0.75rem 0.75rem' }}>
+      {items.map((h, i) => {
+        const d = new Date(h.time)
+        const label = `${String(d.getHours()).padStart(2,'0')}:00`
+        const emoji = CONDITION_EMOJI[h.condition] ?? '🌡️'
+        const isNow = i === 0 && nowIndex >= 0
+        return (
+          <div key={i} className="hourly-item" style={isNow ? { background: 'var(--accent)', color: 'var(--accent-fg)' } : {}}>
+            <div style={{ fontSize: '0.72rem', color: isNow ? 'rgba(255,255,255,0.8)' : 'var(--text-muted)' }}>{label}</div>
+            <div style={{ fontSize: '1.2rem', margin: '0.2rem 0' }}>{emoji}</div>
+            <div style={{ fontWeight: 600, fontSize: '0.88rem' }}>{h.temperature != null ? Math.round(h.temperature) : '—'}°</div>
           </div>
-          <div style={{ fontSize: '1.25rem', margin: '0.25rem 0' }}>{emoji}</div>
-          <div style={{ fontWeight: 600 }}>{temp}°</div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

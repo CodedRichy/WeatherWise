@@ -14,10 +14,10 @@ export async function getCurrent(req, res) {
     const data = await weatherService.fetchCurrent(Number(lat), Number(lon))
 
     // Save search history if user is authenticated (optional — do not fail request on error)
-    if (req.user) {
+    if (req.auth?.userId) {
       try {
         await SearchHistory.create({
-          userId: req.user.id,
+          userId: req.auth.userId,
           city: 'Unknown',
           lat: Number(lat),
           lon: Number(lon),

@@ -1,50 +1,45 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext.jsx'
+import { useUser, useClerk } from '@clerk/react'
 import { userApi } from '../api/weatherApi.js'
 import SkeletonCard from '../components/ui/SkeletonCard.jsx'
 import apiClient from '../api/apiClient.js'
 
 export default function Profile() {
-  const { user, logout, isLoading } = useAuth()
+  const { user, isLoaded, isSignedIn } = useUser()
+  const { signOut } = useClerk()
   const navigate = useNavigate()
   const [favorites, setFavorites] = useState([])
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
   const [removingId, setRemovingId] = useState(null)
-  const [prefs, setPrefs] = useState({ units: user?.preferences?.units || 'metric', theme: user?.preferences?.theme || 'auto', narrativeStyle: user?.preferences?.narrativeStyle || 'casual' })
+  const [prefs, setPrefs] = useState({ units: 'metric', theme: 'auto', narrativeStyle: 'casual' })
   const [prefsSaving, setPrefsSaving] = useState(false)
   const [prefsSaveError, setPrefsSaveError] = useState(null)
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoaded) return
+    if (!isSignedIn) {
       navigate('/', { replace: true })
+      return
     }
-  }, [user, isLoading, navigate])
+    // Fetch preferences from MongoDB
+    apiClient.get('/api/auth/me').then(res => {
+      if (res.data?.preferences) setPrefs(res.data.preferences)
+    }).catch(() => {})
+  }, [isLoaded, isSignedIn, navigate])
 
   useEffect(() => {
-    if (user?.preferences) {
-      setPrefs({
-        units: user.preferences.units || 'metric',
-        theme: user.preferences.theme || 'auto',
-        narrativeStyle: user.preferences.narrativeStyle || 'casual',
-      })
-    }
-  }, [user])
-
-  useEffect(() => {
-    if (!user) return
+    if (!isSignedIn) return
     setLoading(true)
     Promise.all([userApi.getFavorites(), userApi.getHistory()])
       .then(([favRes, histRes]) => {
         setFavorites(favRes.data)
         setHistory(histRes.data)
       })
-      .catch(() => {
-        // silently fail — data just stays empty
-      })
+      .catch(() => {})
       .finally(() => setLoading(false))
-  }, [user])
+  }, [isSignedIn])
 
   async function handleRemoveFavorite(id) {
     setRemovingId(id)
@@ -52,7 +47,6 @@ export default function Profile() {
       await userApi.removeFavorite(id)
       setFavorites((prev) => prev.filter((f) => f._id !== id))
     } catch {
-      // ignore
     } finally {
       setRemovingId(null)
     }
@@ -71,8 +65,8 @@ export default function Profile() {
     }
   }
 
-  function handleLogout() {
-    logout()
+  async function handleLogout() {
+    await signOut()
     navigate('/', { replace: true })
   }
 
@@ -91,7 +85,7 @@ export default function Profile() {
       ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
   }
 
-  if (isLoading) {
+  if (!isLoaded) {
     return (
       <div className="page profile-page">
         <SkeletonCard height="80px" />
@@ -99,23 +93,25 @@ export default function Profile() {
     )
   }
 
-  if (!user) return null
+  if (!isSignedIn) return null
+
+  const displayName = user.fullName || user.firstName || user.primaryEmailAddress?.emailAddress || '—'
+  const displayEmail = user.primaryEmailAddress?.emailAddress || '—'
 
   return (
     <div className="page profile-page">
       <h1 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: 700 }}>Profile</h1>
 
-      {/* Account section */}
       <section className="profile-section">
         <h2>Account</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
           <div>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Name</span>
-            <p style={{ fontWeight: 600, marginTop: '0.15rem' }}>{user.name || '—'}</p>
+            <p style={{ fontWeight: 600, marginTop: '0.15rem' }}>{displayName}</p>
           </div>
           <div>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</span>
-            <p style={{ marginTop: '0.15rem' }}>{user.email}</p>
+            <p style={{ marginTop: '0.15rem' }}>{displayEmail}</p>
           </div>
         </div>
 
@@ -152,7 +148,6 @@ export default function Profile() {
         </form>
       </section>
 
-      {/* Saved Locations */}
       <section className="profile-section">
         <h2>Saved Locations</h2>
         {loading ? (
@@ -188,7 +183,6 @@ export default function Profile() {
         )}
       </section>
 
-      {/* Search History */}
       <section className="profile-section">
         <h2>Search History</h2>
         {loading ? (
@@ -221,7 +215,6 @@ export default function Profile() {
         )}
       </section>
 
-      {/* Logout */}
       <div style={{ marginTop: '0.5rem' }}>
         <button className="btn-danger" onClick={handleLogout}>
           Sign Out

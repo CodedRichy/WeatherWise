@@ -23,7 +23,7 @@ export default function GoOutsideOracle({ lat, lon }) {
         Should I go outside?
       </p>
       {!checked && !loading && (
-        <button className="btn btn--accent" onClick={check} style={{ width: '100%', padding: '0.65rem' }}>
+        <button className="btn btn--accent" onClick={check} style={{ padding: '0.5rem 1.75rem' }}>
           Ask WeatherWise
         </button>
       )}

@@ -17,7 +17,7 @@ export default function NarrativeSummary({ narrative, loading }) {
 
   return (
     <div className="narrative-card">
-      <p style={{ fontStyle: 'italic', lineHeight: 1.6, color: 'var(--text)' }}>
+      <p style={{ lineHeight: 1.6, color: 'var(--text)' }}>
         {narrative.narrative}
       </p>
       {generatedTime && (

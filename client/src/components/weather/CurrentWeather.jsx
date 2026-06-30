@@ -1,40 +1,55 @@
+import { useState, useEffect, useRef } from 'react'
 import { CONDITION_EMOJI } from './constants.js'
 
-function tempGradient(temp) {
-  if (temp < 5)  return 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
-  if (temp < 15) return 'linear-gradient(135deg, #10b981, #059669)'
-  if (temp < 28) return 'linear-gradient(135deg, #f59e0b, #d97706)'
-  return 'linear-gradient(135deg, #ef4444, #dc2626)'
+function tempAccent(temp) {
+  if (temp < 0)  return '#60a5fa'
+  if (temp < 10) return '#34d399'
+  if (temp < 20) return '#a3e635'
+  if (temp < 28) return '#fbbf24'
+  if (temp < 35) return '#f97316'
+  return '#ef4444'
 }
 
-// Props: { current }
-// current = { temperature, feelsLike, humidity, pressure, windSpeed, windDirection,
-//             cloudCover, precipitation, weatherCode, condition, timestamp }
+function useCountUp(target, duration = 600) {
+  const [val, setVal] = useState(0)
+  const prev = useRef(0)
+  useEffect(() => {
+    const start = prev.current
+    const diff = target - start
+    const startTime = performance.now()
+    function step(now) {
+      const t = Math.min((now - startTime) / duration, 1)
+      const eased = 1 - Math.pow(1 - t, 3)
+      setVal(Math.round(start + diff * eased))
+      if (t < 1) requestAnimationFrame(step)
+      else prev.current = target
+    }
+    requestAnimationFrame(step)
+  }, [target, duration])
+  return val
+}
+
 export default function CurrentWeather({ current }) {
   if (!current) return null
 
   const emoji = CONDITION_EMOJI[current.condition] ?? '🌡️'
-  const gradient = tempGradient(current.temperature)
+  const accent = tempAccent(current.temperature)
+  const displayTemp = useCountUp(Math.round(current.temperature))
 
   return (
-    <div className="current-weather" style={{ background: gradient }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div className="current-weather" style={{ '--cw-accent': accent }}>
+      <div className="cw-header">
         <div>
-          <div style={{ fontSize: '3rem', fontWeight: 700, lineHeight: 1 }}>
-            {Math.round(current.temperature)}°C
-          </div>
-          <div style={{ fontSize: '1.1rem', marginTop: '0.25rem', opacity: 0.9 }}>
-            {emoji} {current.condition}
-          </div>
+          <div className="cw-degree">{displayTemp}°C</div>
+          <div className="cw-condition">{current.condition}</div>
         </div>
-        <div style={{ fontSize: '4rem', opacity: 0.8 }}>{emoji}</div>
+        <div className="cw-icon">{emoji}</div>
       </div>
-
-      <div className="weather-grid" style={{ color: 'rgba(255,255,255,0.9)' }}>
-        <div>Feels like {Math.round(current.feelsLike)}°C</div>
-        <div>Humidity {current.humidity}%</div>
-        <div>Wind {current.windSpeed != null ? current.windSpeed.toFixed(1) : '—'} m/s</div>
-        <div>Pressure {current.pressure} hPa</div>
+      <div className="cw-stats">
+        <span className="cw-stat">Feels {Math.round(current.feelsLike)}°C</span>
+        <span className="cw-stat">{current.humidity}% humidity</span>
+        <span className="cw-stat">{current.windSpeed != null ? current.windSpeed.toFixed(1) : '—'} m/s wind</span>
+        <span className="cw-stat">{current.pressure} hPa</span>
       </div>
     </div>
   )

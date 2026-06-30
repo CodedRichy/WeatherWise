@@ -17,6 +17,15 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 })
 
+// Force Leaflet to measure full container on mount
+function MapSizer() {
+  const map = useMap()
+  useEffect(() => {
+    setTimeout(() => map.invalidateSize(), 50)
+  }, [map])
+  return null
+}
+
 // Re-center the map whenever lat/lon props change
 function MapRecenter({ lat, lon }) {
   const map = useMap()
@@ -28,13 +37,13 @@ function MapRecenter({ lat, lon }) {
 
 // Marker at current selected coords with popup
 function LocationMarker({ lat, lon }) {
-  return (
-    <Marker position={[lat, lon]}>
-      <Popup>
-        {lat.toFixed(4)}, {lon.toFixed(4)}
-      </Popup>
-    </Marker>
-  )
+  const icon = L.divIcon({
+    html: '<div class="pulse-dot"><div class="pulse-ring"></div></div>',
+    className: '',
+    iconSize: [10, 10],
+    iconAnchor: [5, 5],
+  })
+  return <Marker position={[lat, lon]} icon={icon} />
 }
 
 // Fire onLocationSelect when user clicks the map
@@ -106,6 +115,7 @@ export default function WeatherMap({
 
       {/* Re-center when coords change */}
       <MapRecenter lat={lat} lon={lon} />
+      <MapSizer />
 
       {/* Click-to-select handler */}
       <ClickHandler onLocationSelect={onLocationSelect} />

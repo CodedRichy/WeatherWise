@@ -1,6 +1,9 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import { clerkMiddleware } from '@clerk/express'
 import { connectDB } from './config/db.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { rateLimiter } from './middleware/rateLimiter.js'
@@ -12,16 +15,15 @@ import userRoutes from './routes/user.js'
 import smartRoutes from './routes/smart.js'
 import { startCacheCleanup } from './jobs/cacheCleanup.js'
 
-dotenv.config()
-
-if ((process.env.JWT_SECRET || '').length < 32 || (process.env.JWT_REFRESH_SECRET || '').length < 32) {
-  console.warn('WARNING: JWT_SECRET and JWT_REFRESH_SECRET must be at least 32 characters. Tokens will be weak.')
-}
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+dotenv.config({ path: path.resolve(__dirname, '../.env') })
 
 const app = express()
 
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }))
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173,http://localhost:5174').split(',')
+app.use(cors({ origin: (origin, cb) => cb(null, !origin || allowedOrigins.includes(origin) || /^http:\/\/localhost:\d+$/.test(origin)), credentials: true }))
 app.use(express.json())
+app.use(clerkMiddleware())
 app.use(rateLimiter)
 
 app.use('/api/auth', authRoutes)

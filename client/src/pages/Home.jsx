@@ -26,12 +26,25 @@ export default function Home() {
 
   const { current, forecast, hourly, narrative, loading, error } = useWeather(coords)
 
+  function conditionGlow(cond) {
+    if (!cond) return 'rgba(255,255,255,0.04)'
+    const c = cond.toLowerCase()
+    if (c.includes('rain') || c.includes('drizzle')) return 'rgba(59,130,246,0.18)'
+    if (c.includes('thunder') || c.includes('storm'))  return 'rgba(139,92,246,0.18)'
+    if (c.includes('snow'))                             return 'rgba(186,230,253,0.14)'
+    if (c.includes('clear') || c.includes('sunny'))    return 'rgba(251,191,36,0.18)'
+    if (c.includes('cloud'))                            return 'rgba(148,163,184,0.12)'
+    return 'rgba(255,255,255,0.04)'
+  }
+
   // Prediction state
   const [prediction, setPrediction]       = useState(null)
   const [showPrediction, setShowPrediction] = useState(false)
   const [predLoading, setPredLoading]     = useState(false)
 
   const [showExplain, setShowExplain] = useState(false)
+  const [showHourly, setShowHourly] = useState(false)
+  const [showWeekly, setShowWeekly] = useState(false)
 
   // Click-to-weather popup state
   const [clickWeather, setClickWeather] = useState(null)
@@ -78,6 +91,7 @@ export default function Home() {
   return (
     <div className="home-layout">
       <div className="map-panel">
+        <div className="map-explore-hint">Click anywhere to explore weather</div>
         <WeatherMap
           lat={coords.lat}
           lon={coords.lon}
@@ -103,7 +117,7 @@ export default function Home() {
         />
         <OverlayControls activeOverlay={activeOverlay} onOverlayChange={setActiveOverlay} />
       </div>
-      <div className="weather-panel">
+      <div className="weather-panel" style={{ '--wx-glow': conditionGlow(current?.condition) }}>
         {loading ? (
           <>
             <SkeletonCard height="180px" />
@@ -117,17 +131,29 @@ export default function Home() {
           <>
             <CurrentWeather current={current} />
             <NarrativeSummary narrative={narrative} loading={loading} />
-            <GoOutsideOracle lat={coords.lat} lon={coords.lon} />
-            <UVIndex lat={coords.lat} lon={coords.lon} />
-            <SunsetBeauty lat={coords.lat} lon={coords.lon} />
-            <BioWeather lat={coords.lat} lon={coords.lon} />
-            <HourlyTimeline hourly={hourly} />
-            <WeeklyForecast forecast={forecast} />
-
-            {/* AI Forecast section */}
+            <div className="smart-grid">
+              <GoOutsideOracle lat={coords.lat} lon={coords.lon} />
+              <UVIndex lat={coords.lat} lon={coords.lon} />
+              <SunsetBeauty lat={coords.lat} lon={coords.lon} />
+              <BioWeather lat={coords.lat} lon={coords.lon} />
+            </div>
             <div className="prediction-section">
-              <button className="section-toggle" onClick={togglePrediction}>
-                {showPrediction ? '▼' : '▶'} AI Forecast
+              <button className="section-toggle" data-open={showHourly} onClick={() => setShowHourly(v => !v)}>
+                Hourly Forecast <span className="chevron">›</span>
+              </button>
+              {showHourly && <HourlyTimeline hourly={hourly} />}
+            </div>
+
+            <div className="prediction-section">
+              <button className="section-toggle" data-open={showWeekly} onClick={() => setShowWeekly(v => !v)}>
+                7-Day Forecast <span className="chevron">›</span>
+              </button>
+              {showWeekly && <WeeklyForecast forecast={forecast} />}
+            </div>
+
+            <div className="prediction-section">
+              <button className="section-toggle" data-open={showPrediction} onClick={togglePrediction}>
+                AI Forecast <span className="chevron">›</span>
               </button>
               {showPrediction && (
                 predLoading
@@ -138,10 +164,9 @@ export default function Home() {
               )}
             </div>
 
-            {/* Why this prediction section */}
             <div className="prediction-section">
-              <button className="section-toggle" onClick={toggleExplain}>
-                {showExplain ? '▼' : '▶'} Why this prediction
+              <button className="section-toggle" data-open={showExplain} onClick={toggleExplain}>
+                Why this prediction <span className="chevron">›</span>
               </button>
               {showExplain && (
                 predLoading

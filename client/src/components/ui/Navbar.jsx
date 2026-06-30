@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
-import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useUser, UserButton, SignInButton, SignUpButton } from '@clerk/react'
 import { useTheme } from '../../contexts/ThemeContext.jsx'
 
 const THEME_ICONS = { light: '☀️', dark: '🌙', auto: '⚙️' }
@@ -8,19 +8,8 @@ const THEME_CYCLE = ['light', 'dark', 'auto']
 
 const LOCATION_KEY = 'ww-location'
 
-function getInitials(user) {
-  if (!user) return ''
-  const name = user.name || user.email || ''
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
-}
-
 export default function Navbar() {
-  const { user, logout } = useAuth()
+  const { user, isSignedIn } = useUser()
   const { theme, setTheme } = useTheme()
 
   const [menuOpen, setMenuOpen] = useState(false)
@@ -47,7 +36,6 @@ export default function Navbar() {
         const location = data[0]
         localStorage.setItem(LOCATION_KEY, JSON.stringify(location))
         setQuery('')
-        // Dispatch a storage event so other components can react
         window.dispatchEvent(new StorageEvent('storage', {
           key: LOCATION_KEY,
           newValue: JSON.stringify(location),
@@ -76,29 +64,16 @@ export default function Navbar() {
       </button>
 
       <div className={`navbar__links nav-links${menuOpen ? ' open' : ''}`}>
-        <NavLink
-          to="/"
-          end
-          className={({ isActive }) => 'navbar__link' + (isActive ? ' active' : '')}
-        >
+        <NavLink to="/" end className={({ isActive }) => 'navbar__link' + (isActive ? ' active' : '')}>
           Home
         </NavLink>
-        <NavLink
-          to="/compare"
-          className={({ isActive }) => 'navbar__link' + (isActive ? ' active' : '')}
-        >
+        <NavLink to="/compare" className={({ isActive }) => 'navbar__link' + (isActive ? ' active' : '')}>
           Compare
         </NavLink>
-        <NavLink
-          to="/activities"
-          className={({ isActive }) => 'navbar__link' + (isActive ? ' active' : '')}
-        >
+        <NavLink to="/activities" className={({ isActive }) => 'navbar__link' + (isActive ? ' active' : '')}>
           Activities
         </NavLink>
-        <NavLink
-          to="/history"
-          className={({ isActive }) => 'navbar__link' + (isActive ? ' active' : '')}
-        >
+        <NavLink to="/history" className={({ isActive }) => 'navbar__link' + (isActive ? ' active' : '')}>
           Time Machine
         </NavLink>
       </div>
@@ -129,41 +104,24 @@ export default function Navbar() {
           {THEME_ICONS[theme]}
         </button>
 
-        {user ? (
+        {isSignedIn ? (
           <>
-            <div className="avatar" title={user.name || user.email}>
-              {getInitials(user)}
-            </div>
             <NavLink
               to="/profile"
               className={({ isActive }) => 'navbar__link' + (isActive ? ' active' : '')}
             >
               Profile
             </NavLink>
-            <button className="btn" onClick={logout}>
-              Logout
-            </button>
+            <UserButton afterSignOutUrl="/" />
           </>
         ) : (
           <>
-            <button
-              className="btn"
-              onClick={() => {
-                // Modal support will be wired up in a later task;
-                // for now emit a custom event that a modal component can listen to.
-                window.dispatchEvent(new CustomEvent('ww:open-auth', { detail: 'login' }))
-              }}
-            >
-              Login
-            </button>
-            <button
-              className="btn btn--accent"
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent('ww:open-auth', { detail: 'register' }))
-              }}
-            >
-              Register
-            </button>
+            <SignInButton mode="modal">
+              <button className="btn">Login</button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="btn btn--accent">Register</button>
+            </SignUpButton>
           </>
         )}
       </div>
