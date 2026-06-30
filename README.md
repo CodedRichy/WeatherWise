@@ -1,20 +1,19 @@
 # WeatherWise
 
-AI-powered weather intelligence platform. Live weather, forecasts, activity recommendations, and predictive analytics — built on the MERN stack.
+Weather intelligence platform. Live weather, forecasts, and activity recommendations — built on the MERN stack.
 
 ## Overview
 
-WeatherWise goes beyond a simple weather lookup. It combines real-time data from Open-Meteo with a lightweight prediction layer to estimate near-term temperature trends, suggests activities based on current conditions, and gives users a personalized dashboard with saved cities and search history, all secured behind JWT authentication with refresh tokens.
+WeatherWise goes beyond a simple weather lookup. It combines real-time current conditions from Open-Meteo with forecast data fetched directly from the OpenWeatherMap API, suggests activities based on current conditions, and gives users a personalized dashboard with saved cities and search history, all secured behind JWT authentication with refresh tokens.
 
 ## Features
 
 - User registration and login with JWT access + refresh token authentication
 - Search weather by city with current conditions: temperature, humidity, wind speed, pressure, UV index
-- Multi-day forecast with interactive charts
+- Multi-day forecast with interactive charts, sourced from the OpenWeatherMap forecast API
 - Activity recommendations based on current weather conditions
 - Save favourite cities
 - Persistent search history per user
-- Basic ML-based temperature prediction
 - Dark / Light mode
 - Fully responsive UI
 
@@ -27,8 +26,7 @@ WeatherWise goes beyond a simple weather lookup. It combines real-time data from
 | Database | MongoDB Atlas, Mongoose |
 | Authentication | JWT (access + refresh tokens), bcrypt.js |
 | Weather Data | Open-Meteo API |
-| Optional Weather Data | OpenWeatherMap API |
-| Machine Learning | TensorFlow.js (Linear Regression) |
+| Forecast Data | OpenWeatherMap API |
 | Client Hosting | Vercel |
 | Server Hosting | Railway |
 
@@ -40,9 +38,8 @@ React (Vite) Frontend
       v
 Express Server (Railway)
       |
-      |-- Open-Meteo API (primary weather source)
-      |-- OpenWeatherMap API (optional, supplementary)
-      |-- ML Prediction Layer (TensorFlow.js)
+      |-- Open-Meteo API (current conditions)
+      |-- OpenWeatherMap API (forecast data)
       |-- MongoDB Atlas (Users, History, Favourites)
 ```
 
@@ -120,7 +117,7 @@ weatherwise/
 - Node.js 18+
 - MongoDB Atlas account (free M0 tier works)
 - Open-Meteo requires no API key
-- Optional: OpenWeatherMap API key for supplementary data
+- OpenWeatherMap API key (required for forecast data)
 
 ### Quick Start
 
@@ -143,7 +140,7 @@ Copy `.env.example` to `.env` in the project root and fill in:
 MONGODB_URI=your_mongodb_atlas_connection_string
 JWT_SECRET=generate_with_command_below
 JWT_REFRESH_SECRET=generate_with_command_below
-OWM_API_KEY=optional_openweathermap_key
+OWM_API_KEY=your_openweathermap_api_key
 PORT=5000
 ```
 
@@ -163,7 +160,7 @@ Run this twice — once for `JWT_SECRET`, once for `JWT_REFRESH_SECRET`.
 | POST | `/api/auth/refresh` | Issue a new access token using refresh token |
 | POST | `/api/auth/logout` | Invalidate refresh token |
 | GET | `/api/weather?city=` | Get current weather for a city |
-| GET | `/api/forecast?city=` | Get multi-day forecast |
+| GET | `/api/forecast?city=` | Get multi-day forecast from OpenWeatherMap |
 | GET | `/api/activities?city=` | Get activity suggestions based on conditions |
 | POST | `/api/history` | Save a search to history |
 | GET | `/api/history` | Get a user's search history |
@@ -182,9 +179,9 @@ WeatherWise uses a short-lived access token paired with a longer-lived refresh t
 
 This avoids forcing users to repeatedly log in while keeping access tokens short-lived for better security.
 
-## Machine Learning Approach
+## Forecast Data
 
-A lightweight linear regression model, trained client-side with TensorFlow.js, uses the last several days of temperature data to estimate near-term temperature trends. This was chosen over heavier models (Decision Tree, Random Forest, LSTM) because it trains quickly without a dedicated ML backend, making it well suited for fast, single-variable short-term predictions running directly in the browser.
+Rather than running a custom prediction model, WeatherWise sources its multi-day forecast directly from the OpenWeatherMap forecast API. Current conditions (temperature, humidity, wind speed, pressure, UV index) come from Open-Meteo, while forward-looking forecast data is fetched from OpenWeatherMap and passed through to the client for charting. This keeps the backend simple and avoids the overhead of training, hosting, and maintaining a separate model.
 
 ## Activity Recommendations
 
@@ -209,7 +206,7 @@ Based on the current weather conditions returned by Open-Meteo (temperature, pre
 
 ## Future Improvements
 
-- LSTM-based multi-day forecasting via a dedicated Python microservice
+- Custom predictive model (e.g. Random Forest or LSTM) for near-term forecasting beyond what the third-party APIs provide
 - Email notifications for severe weather alerts
 - GPS-based automatic location detection
 - Side-by-side weather comparison between two cities
@@ -223,7 +220,6 @@ Based on the current weather conditions returned by Open-Meteo (temperature, pre
 - MongoDB CRUD operations with Mongoose
 - React Hooks and component architecture
 - Data visualization with interactive charts
-- Client-side machine learning integration
 - Full-stack MERN development and cloud deployment
 
 ## License
