@@ -33,6 +33,13 @@ app.use('/api/activities', activityRoutes)
 app.use('/api/smart', smartRoutes)
 app.use('/api', userRoutes)
 
+// Serve built React client in production
+const clientDist = path.resolve(__dirname, '../client/dist')
+app.use(express.static(clientDist))
+app.get('*', (req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'))
+})
+
 app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000

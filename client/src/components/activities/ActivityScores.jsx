@@ -57,20 +57,23 @@ function RadialGauge({ score }) {
   )
 }
 
+const FACTOR_LABELS = { temp: 'Temp', humidity: 'Humidity', wind: 'Wind', precipitation: 'Rain' }
+const FACTOR_UNITS = { temp: '°C', humidity: '%', wind: 'm/s', precipitation: 'mm' }
+
 function ActivityCard({ activityKey, data }) {
   const name = DISPLAY_NAMES[activityKey] || activityKey
   const score = data?.score ?? 0
-  const factors = data?.factors ?? []
-  const topFactors = factors.slice(0, 2)
+  const factorsObj = data?.factors ?? {}
+  const topFactors = Object.entries(factorsObj).slice(0, 2)
 
   return (
     <div className="activity-card">
       <h3>{name}</h3>
-      <RadialGauge score={score} />
+      <RadialGauge score={Math.round(score)} />
       {topFactors.length > 0 && (
         <div className="activity-factors">
-          {topFactors.map((f, i) => (
-            <div key={i}>{f}</div>
+          {topFactors.map(([key, val]) => (
+            <div key={key}>{FACTOR_LABELS[key] ?? key}: {typeof val === 'number' ? val.toFixed(1) : val}{FACTOR_UNITS[key] ?? ''}</div>
           ))}
         </div>
       )}

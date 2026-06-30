@@ -36,12 +36,14 @@ function formatDuration(minutes) {
 }
 
 function WindowCard({ window: win }) {
-  const score = win?.score ?? 0
+  const score = Math.round(win?.score ?? 0)
   const color = scoreColor(score)
-  const startLabel = formatWindowTime(win?.start)
+  const startLabel = formatWindowTime(win?.startTime ?? win?.start)
   const duration = win?.duration_minutes != null ? formatDuration(win.duration_minutes) : null
-  const factors = win?.factors ?? []
-  const topFactors = factors.slice(0, 2)
+  const factorsRaw = win?.factors ?? {}
+  const topFactors = Array.isArray(factorsRaw)
+    ? factorsRaw.slice(0, 2)
+    : Object.entries(factorsRaw).slice(0, 2).map(([k, v]) => `${k}: ${typeof v === 'number' ? v.toFixed(1) : v}`)
 
   return (
     <div className="window-card">

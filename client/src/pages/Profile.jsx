@@ -72,10 +72,11 @@ export default function Profile() {
 
   function handleReSearch(entry) {
     if (entry.lat != null && entry.lon != null) {
-      navigate(`/?lat=${entry.lat}&lon=${entry.lon}&city=${encodeURIComponent(entry.city || '')}`)
-    } else if (entry.city) {
-      navigate(`/?city=${encodeURIComponent(entry.city)}`)
+      const loc = { lat: entry.lat, lon: entry.lon, name: entry.city || '' }
+      localStorage.setItem('ww-location', JSON.stringify(loc))
+      window.dispatchEvent(new StorageEvent('storage', { key: 'ww-location', newValue: JSON.stringify(loc) }))
     }
+    navigate('/')
   }
 
   function formatDate(dateStr) {
@@ -143,7 +144,7 @@ export default function Profile() {
             {prefsSaving ? 'Saving...' : 'Save Preferences'}
           </button>
           {prefsSaveError && (
-            <p style={{ color: 'var(--error, #ef4444)', fontSize: '0.85rem', marginTop: '0.4rem' }}>{prefsSaveError}</p>
+            <p style={{ color: 'var(--danger)', fontSize: '0.85rem', marginTop: '0.4rem' }}>{prefsSaveError}</p>
           )}
         </form>
       </section>

@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { SignedIn, SignedOut } from '@clerk/react'
+import { Show, useAuth } from '@clerk/react'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import Navbar from './components/ui/Navbar.jsx'
 
@@ -20,12 +20,10 @@ function Spinner() {
 }
 
 function ProtectedRoute({ children }) {
-  return (
-    <>
-      <SignedIn>{children}</SignedIn>
-      <SignedOut><Navigate to="/" replace /></SignedOut>
-    </>
-  )
+  const { isSignedIn, isLoaded } = useAuth()
+  if (!isLoaded) return <Spinner />
+  if (!isSignedIn) return <Navigate to="/" replace />
+  return children
 }
 
 function AppRoutes() {

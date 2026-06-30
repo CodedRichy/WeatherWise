@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
-import { useUser, UserButton, SignInButton, SignUpButton } from '@clerk/react'
+import { Show, UserButton, SignInButton, SignUpButton } from '@clerk/react'
 import { useTheme } from '../../contexts/ThemeContext.jsx'
 
 const THEME_ICONS = { light: '☀️', dark: '🌙', auto: '⚙️' }
@@ -9,7 +9,6 @@ const THEME_CYCLE = ['light', 'dark', 'auto']
 const LOCATION_KEY = 'ww-location'
 
 export default function Navbar() {
-  const { user, isSignedIn } = useUser()
   const { theme, setTheme } = useTheme()
 
   const [menuOpen, setMenuOpen] = useState(false)
@@ -78,11 +77,11 @@ export default function Navbar() {
         </NavLink>
       </div>
 
-      <form className="navbar__search" onSubmit={handleSearch} role="search">
+      <form className="navbar__search" onSubmit={handleSearch} role="search" style={{ position: 'relative' }}>
         <input
           ref={inputRef}
           type="search"
-          className="navbar__search-input"
+          className={`navbar__search-input${searchError ? ' input--error' : ''}`}
           placeholder="Search location…"
           value={query}
           onChange={(e) => {
@@ -90,8 +89,12 @@ export default function Navbar() {
             if (searchError) setSearchError(null)
           }}
           aria-label="Search location"
-          title={searchError || undefined}
         />
+        {searchError && (
+          <span style={{ position: 'absolute', top: '100%', left: 0, fontSize: '0.75rem', color: 'var(--danger)', whiteSpace: 'nowrap', marginTop: '0.25rem' }}>
+            {searchError}
+          </span>
+        )}
       </form>
 
       <div className="navbar__actions">
@@ -104,26 +107,23 @@ export default function Navbar() {
           {THEME_ICONS[theme]}
         </button>
 
-        {isSignedIn ? (
-          <>
-            <NavLink
-              to="/profile"
-              className={({ isActive }) => 'navbar__link' + (isActive ? ' active' : '')}
-            >
-              Profile
-            </NavLink>
-            <UserButton afterSignOutUrl="/" />
-          </>
-        ) : (
-          <>
-            <SignInButton mode="modal">
-              <button className="btn">Login</button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <button className="btn btn--accent">Register</button>
-            </SignUpButton>
-          </>
-        )}
+        <Show when="signed-in">
+          <NavLink
+            to="/profile"
+            className={({ isActive }) => 'navbar__link' + (isActive ? ' active' : '')}
+          >
+            Profile
+          </NavLink>
+          <UserButton afterSignOutUrl="/" />
+        </Show>
+        <Show when="signed-out">
+          <SignInButton mode="modal">
+            <button className="btn">Login</button>
+          </SignInButton>
+          <SignUpButton mode="modal">
+            <button className="btn btn--accent">Register</button>
+          </SignUpButton>
+        </Show>
       </div>
     </nav>
   )

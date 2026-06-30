@@ -334,7 +334,7 @@ body {
 .weather-panel {
   position: absolute;
   right: 0; top: 0; bottom: 0;
-  width: 420px;
+  width: 400px;
   z-index: 10;
   overflow-y: auto;
   overflow-x: hidden;
@@ -349,6 +349,7 @@ body {
   box-shadow: -24px 0 80px rgba(0,0,0,0.6);
   scroll-behavior: smooth;
 }
+.weather-panel > * { flex-shrink: 0; }
 .weather-panel::-webkit-scrollbar { width: 3px; }
 .weather-panel::-webkit-scrollbar-track { background: transparent; }
 .weather-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }

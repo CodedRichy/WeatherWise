@@ -1,3 +1,7 @@
-import { requireAuth as clerkRequireAuth } from '@clerk/express'
+import { getAuth } from '@clerk/express'
 
-export const requireAuth = clerkRequireAuth()
+export function requireAuth(req, res, next) {
+  const { userId } = getAuth(req)
+  if (!userId) return res.status(401).json({ error: 'Unauthorized' })
+  next()
+}
